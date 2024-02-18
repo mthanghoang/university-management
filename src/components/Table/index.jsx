@@ -83,8 +83,10 @@ function stableSort(array, comparator) {
 
 function SortableTableHead(props) {
   const { order, orderBy, onRequestSort } = props
-  const createSortHandler = (property) => (e) => {
-    onRequestSort(e, property)
+  const [count, setCount] = useState(1)
+  const createSortHandler = (property, count) => (e) => {
+    setCount(count + 1)
+    onRequestSort(e, property, count)
   }
   return (
     <TableHead>
@@ -98,7 +100,7 @@ function SortableTableHead(props) {
             <TableSortLabel
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
+              onClick={createSortHandler(headCell.id, count)}
             >
               {headCell.label}
               {orderBy === headCell.id ? (
@@ -121,6 +123,13 @@ SortableTableHead.propTypes = {
 }
 
 function UsersTable() {
+  // SEARCH
+  const [search, setSearch] = useState('')
+  const handleSearch = (e) => {
+    setSearch(e.target.value)
+    setPage(0)
+  }
+
   // PAGINATION
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
@@ -135,26 +144,42 @@ function UsersTable() {
 
   // SORTING
   const [order, setOrder] = useState('asc')
-  const [orderBy, setOrderBy] = useState('date')
+  const [orderBy, setOrderBy] = useState('')
 
-  const handleRequestSort = (e, property) => {
-    const isAsc = orderBy === property && order === 'asc'
-    setOrder(isAsc ? 'desc' : 'asc')
-    setOrderBy(property)
+  const handleRequestSort = (e, property, count) => {
+    if (count % 3 === 0) {
+      setOrder('asc')
+      setOrderBy('')
+    }
+    else {
+      const isAsc = orderBy === property && order === 'asc'
+      setOrder(isAsc ? 'desc' : 'asc')
+      setOrderBy(property)
+    }
   }
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
-  const visibleRows = useMemo(
+  const filteredRows = useMemo(
     () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
+      rows.filter((row) => {
+        return search === ''
+          ? row
+          : row.username.toLowerCase().includes(search.toLowerCase())
+      }),
+    [search]
+  )
+  const sortedRows = useMemo(
+    () =>
+      stableSort(filteredRows, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
       ),
-    [order, orderBy, page, rowsPerPage]
+    [order, orderBy, page, rowsPerPage, filteredRows]
   )
+
   return (
     <Paper sx={{ mx: '16px' }}>
       <Box sx={{
@@ -166,11 +191,16 @@ function UsersTable() {
         pb: 0
       }}>
         <TextField
-          id='outlined-search'
+          id='standard-search'
           label='Search...'
           type='search'
           size='small'
-          sx={{ maxWidth: '180px' }}
+          variant='standard'
+          sx={{
+            flexGrow: '1',
+            maxWidth: '500px'
+          }}
+          onChange={handleSearch}
         />
         <Box sx={{
           display: 'flex',
@@ -199,7 +229,7 @@ function UsersTable() {
             onRequestSort={handleRequestSort}
           />
           <TableBody>
-            {visibleRows.map((row) => (
+            {sortedRows.map((row) => (
               <TableRow key={row.id}>
                 <TableCell align='center'>{row.id}</TableCell>
                 <TableCell align='center'>{row.username}</TableCell>
@@ -222,7 +252,8 @@ function UsersTable() {
         rowsPerPageOptions={[5, 10]}
         component={'div'}
         rowsPerPage={rowsPerPage}
-        count={rows.length}
+        // count={rows.length}
+        count={filteredRows.length}
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}

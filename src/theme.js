@@ -33,14 +33,14 @@ const theme = extendTheme({
         }
       }
     },
-    MuiInputLabel: {
-      styleOverrides: {
-        // Name of the slot
-        root: ({ theme }) => ({
-          color: theme.palette.primary.main
-        })
-      }
-    },
+    // MuiInputLabel: {
+    //   styleOverrides: {
+    //     // Name of the slot
+    //     root: ({ theme }) => ({
+    //       color: theme.palette.primary.main
+    //     })
+    //   }
+    // },
     MuiOutlinedInput: {
       styleOverrides: {
         // Name of the slot
