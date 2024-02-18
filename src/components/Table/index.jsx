@@ -22,10 +22,11 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+import { useNavigate } from 'react-router'
 
 const headCells = [
   {
-    id: 'id',
+    id: 'userid',
     label: 'User ID'
   },
   {
@@ -87,10 +88,8 @@ function stableSort(array, comparator) {
 
 function SortableTableHead(props) {
   const { order, orderBy, onRequestSort } = props
-  const [count, setCount] = useState(1)
-  const createSortHandler = (property, count) => (e) => {
-    setCount(count + 1)
-    onRequestSort(e, property, count)
+  const createSortHandler = (property) => (e) => {
+    onRequestSort(e, property)
   }
   return (
     <TableHead>
@@ -98,20 +97,15 @@ function SortableTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.id === 'id' ? 'left' : 'right'}
+            align={headCell.id === 'userid' ? 'left' : 'right'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id, count)}
+              onClick={createSortHandler(headCell.id)}
             >
               {headCell.label}
-              {/* {orderBy === headCell.id ? (
-                <Box component='span' sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
-              ) : null} */}
             </TableSortLabel>
           </TableCell>
         ))}
@@ -150,21 +144,12 @@ function UsersTable() {
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('')
 
-  const handleRequestSort = (e, property, count) => {
-    if (count % 3 === 0) {
-      setOrder('asc')
-      setOrderBy('')
-    }
-    else {
-      const isAsc = orderBy === property && order === 'asc'
-      setOrder(isAsc ? 'desc' : 'asc')
-      setOrderBy(property)
-    }
+  const handleRequestSort = (e, property) => {
+    const isAsc = orderBy === property && order === 'asc'
+    setOrder(isAsc ? 'desc' : 'asc')
+    setOrderBy(property)
+    setPage(1)
   }
-
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page-1 > 0 ? Math.max(0, (1 + page - 1) * rowsPerPage - rows.length) : 0
 
   const filteredRows = useMemo(
     () =>
@@ -194,6 +179,11 @@ function UsersTable() {
     [order, orderBy, page, rowsPerPage, filteredRows]
   )
 
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page-1 > 0 ? Math.max(0, (1 + page - 1) * rowsPerPage - filteredRows.length) : 0
+
+  const navigate = useNavigate()
   return (
     <Paper sx={{ mx: '16px' }}>
       <Box sx={{
@@ -209,6 +199,7 @@ function UsersTable() {
           type='search'
           size='small'
           variant='standard'
+          value={search}
           sx={{
             flexGrow: '1',
             maxWidth: '500px'
@@ -219,7 +210,16 @@ function UsersTable() {
           display: 'flex',
           gap: 2
         }}>
-          <Button variant='contained'>ОЧИСТИТЬ</Button>
+          <Button
+            variant='contained'
+            onClick={() => {
+              setPage(1)
+              setOrderBy('')
+              setSearch('')
+            }}
+          >
+            ОЧИСТИТЬ
+          </Button>
           <Button variant='contained'>
             <FilterAltIcon sx={{
               width: '24px',
@@ -244,14 +244,17 @@ function UsersTable() {
           <TableBody>
             {sortedRows.map((row) => (
               <TableRow
-                key={row.id}
+                key={row.userid}
                 sx={{
                   cursor: 'pointer',
                   '&:hover': {
                     backgroundColor: 'red'
                   }
+                }}
+                onClick={() => {
+                  navigate(`/users/${row.userid}`)
                 }}>
-                <TableCell align='left'>{row.id}</TableCell>
+                <TableCell align='left'>{row.userid}</TableCell>
                 <TableCell align='right'>{row.username}</TableCell>
                 <TableCell align='right'>{row.email}</TableCell>
                 <TableCell align='right'>{row.role}</TableCell>
@@ -268,15 +271,7 @@ function UsersTable() {
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
-        rowsPerPageOptions={[5, 10]}
-        component={'div'}
-        rowsPerPage={rowsPerPage}
-        count={filteredRows.length}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
+      {/* PAGINATION BAR */}
       <Box sx={{
         p: 2,
         display: 'flex',
@@ -285,8 +280,12 @@ function UsersTable() {
         gap: 1
       }}>
         <Typography variant='h7'>
-          {`Displaying rows ${(page-1) * rowsPerPage + 1} - ${(page-1) * rowsPerPage + rowsPerPage}
-          of ${filteredRows.length}`}
+          {(page-1) * rowsPerPage + rowsPerPage < filteredRows.length
+            ? `Displaying rows ${(page-1) * rowsPerPage + 1} - ${(page-1) * rowsPerPage + rowsPerPage}
+              of ${filteredRows.length}`
+            : `Displaying rows ${(page-1) * rowsPerPage + 1} - ${filteredRows.length}
+              of ${filteredRows.length}`
+          }
         </Typography>
         <Pagination
           count={

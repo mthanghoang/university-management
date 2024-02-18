@@ -1,8 +1,10 @@
 import { Box } from '@mui/material'
+import AppBar from '../components/AppBar'
 
 function HomePage() {
   return (
     <>
+      <AppBar />
       <Box sx={{
         backgroundColor: 'primary.main',
         width: '100%',
