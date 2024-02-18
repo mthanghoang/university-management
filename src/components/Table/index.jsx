@@ -165,9 +165,22 @@ function UsersTable() {
   const filteredRows = useMemo(
     () =>
       rows.filter((row) => {
-        return search === ''
-          ? row
-          : row.username.toLowerCase().includes(search.toLowerCase())
+        // return search === ''
+        //   ? row
+        //   : row.username.toLowerCase().includes(search.toLowerCase())
+        if (search === '') {
+          return row
+        }
+        else {
+          const properties = ['username', 'email', 'role']
+          let containsVal = false
+          properties.forEach((property) => {
+            if (row[property].toLowerCase().includes(search.toLowerCase())) {
+              containsVal = true
+            }
+          })
+          return containsVal
+        }
       }),
     [search]
   )
@@ -187,12 +200,11 @@ function UsersTable() {
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 2,
-        padding: 2,
-        pb: 0
+        padding: 2
       }}>
         <TextField
           id='standard-search'
-          label='Search...'
+          label='Search by username, email and role'
           type='search'
           size='small'
           variant='standard'
@@ -230,7 +242,7 @@ function UsersTable() {
           />
           <TableBody>
             {sortedRows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow key={row.id} sx={{ cursor: 'pointer' }}>
                 <TableCell align='center'>{row.id}</TableCell>
                 <TableCell align='center'>{row.username}</TableCell>
                 <TableCell align='center'>{row.email}</TableCell>
