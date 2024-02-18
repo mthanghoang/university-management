@@ -4,7 +4,6 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
@@ -14,10 +13,15 @@ import { TextField } from '@mui/material'
 import Button from '@mui/material/Button'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import { visuallyHidden } from '@mui/utils'
 import PropTypes from 'prop-types'
 import { useMemo } from 'react'
 import FormatDate from '../../utils/FormatDate'
+import Pagination from '@mui/material/Pagination'
+import Typography from '@mui/material/Typography'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
 
 const headCells = [
   {
@@ -94,7 +98,7 @@ function SortableTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align='center'
+            align={headCell.id === 'id' ? 'left' : 'right'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -103,11 +107,11 @@ function SortableTableHead(props) {
               onClick={createSortHandler(headCell.id, count)}
             >
               {headCell.label}
-              {orderBy === headCell.id ? (
+              {/* {orderBy === headCell.id ? (
                 <Box component='span' sx={visuallyHidden}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                 </Box>
-              ) : null}
+              ) : null} */}
             </TableSortLabel>
           </TableCell>
         ))}
@@ -127,19 +131,19 @@ function UsersTable() {
   const [search, setSearch] = useState('')
   const handleSearch = (e) => {
     setSearch(e.target.value)
-    setPage(0)
+    setPage(1)
   }
 
   // PAGINATION
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [page, setPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
 
   const handleChangePage = (e, newPage) => {
     setPage(newPage)
   }
   const handleChangeRowsPerPage = (e) => {
     setRowsPerPage(e.target.value)
-    setPage(0)
+    setPage(1)
   }
 
   // SORTING
@@ -160,14 +164,11 @@ function UsersTable() {
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+    page-1 > 0 ? Math.max(0, (1 + page - 1) * rowsPerPage - rows.length) : 0
 
   const filteredRows = useMemo(
     () =>
       rows.filter((row) => {
-        // return search === ''
-        //   ? row
-        //   : row.username.toLowerCase().includes(search.toLowerCase())
         if (search === '') {
           return row
         }
@@ -187,8 +188,8 @@ function UsersTable() {
   const sortedRows = useMemo(
     () =>
       stableSort(filteredRows, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
+        (page-1) * rowsPerPage,
+        (page-1) * rowsPerPage + rowsPerPage
       ),
     [order, orderBy, page, rowsPerPage, filteredRows]
   )
@@ -242,12 +243,19 @@ function UsersTable() {
           />
           <TableBody>
             {sortedRows.map((row) => (
-              <TableRow key={row.id} sx={{ cursor: 'pointer' }}>
-                <TableCell align='center'>{row.id}</TableCell>
-                <TableCell align='center'>{row.username}</TableCell>
-                <TableCell align='center'>{row.email}</TableCell>
-                <TableCell align='center'>{row.role}</TableCell>
-                <TableCell align='center'>{row.date}</TableCell>
+              <TableRow
+                key={row.id}
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: 'red'
+                  }
+                }}>
+                <TableCell align='left'>{row.id}</TableCell>
+                <TableCell align='right'>{row.username}</TableCell>
+                <TableCell align='right'>{row.email}</TableCell>
+                <TableCell align='right'>{row.role}</TableCell>
+                <TableCell align='right'>{row.date}</TableCell>
               </TableRow>
             ))}
             {emptyRows > 0 && (
@@ -260,16 +268,53 @@ function UsersTable() {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
+      {/* <TablePagination
         rowsPerPageOptions={[5, 10]}
         component={'div'}
         rowsPerPage={rowsPerPage}
-        // count={rows.length}
         count={filteredRows.length}
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      /> */}
+      <Box sx={{
+        p: 2,
+        display: 'flex',
+        justifyContent: 'end',
+        alignItems: 'center',
+        gap: 1
+      }}>
+        <Typography variant='h7'>
+          {`Displaying rows ${(page-1) * rowsPerPage + 1} - ${(page-1) * rowsPerPage + rowsPerPage}
+          of ${filteredRows.length}`}
+        </Typography>
+        <Pagination
+          count={
+            filteredRows.length % rowsPerPage === 0
+              ? filteredRows.length / rowsPerPage
+              : Math.floor(filteredRows.length / rowsPerPage) + 1
+          }
+          page={page}
+          onChange={handleChangePage}
+          shape='rounded'
+          color='primary'
+          size='large'/>
+        <FormControl sx={{ minWidth: 120 }} size="small">
+          <InputLabel id="label-select-rows-per-page">Rows per page</InputLabel>
+          <Select
+            labelId="label-select-rows-per-page"
+            id="select-rows-per-page"
+            value={rowsPerPage}
+            label="Rows per page"
+            onChange={handleChangeRowsPerPage}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={15}>15</MenuItem>
+            <MenuItem value={20}>20</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
     </Paper>
   )
 }
