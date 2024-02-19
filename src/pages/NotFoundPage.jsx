@@ -8,7 +8,7 @@ function NotFoundPage() {
       gap: 2
     }}>
       404 Not Found
-      <Link to={'/'}>Home from Link</Link>
+      <Link to={'/'}>Home</Link>
     </Box>
   )
 }

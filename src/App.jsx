@@ -4,6 +4,7 @@ import { Container } from '@mui/material'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import NotFoundPage from './pages/NotFoundPage'
 import UserView from './pages/Users/_id'
+import SignInPage from './pages/SignInPage'
 
 function App() {
   const router = createBrowserRouter([
@@ -11,6 +12,10 @@ function App() {
       path: '/',
       element: <HomePage />,
       errorElement: <NotFoundPage />
+    },
+    {
+      path: '/login',
+      element: <SignInPage />
     },
     {
       path: '/users',
