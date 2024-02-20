@@ -170,8 +170,6 @@ export default function SignInPage() {
                   sx={{ mt: '8px' }}
                   onClick={(e) => {
                     e.preventDefault()
-                    console.log('username: ', usernameInput)
-                    console.log('pass: ', passwordInput)
                   }}
                 >
                     Sign In
