@@ -7,7 +7,6 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
-import { rows } from './data'
 import { Box } from '@mui/system'
 import { TextField } from '@mui/material'
 import Button from '@mui/material/Button'
@@ -24,33 +23,12 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import { useNavigate } from 'react-router'
 
-const headCells = [
-  {
-    id: 'userid',
-    label: 'User ID'
-  },
-  {
-    id: 'username',
-    label: 'Username'
-  },
-  {
-    id: 'email',
-    label: 'Email'
-  },
-  {
-    id: 'role',
-    label: 'Role'
-  },
-  {
-    id: 'date',
-    label: 'Creation Date'
-  }
-]
-
 function descendingComparator(a, b, orderBy) {
-  if (orderBy === 'date') {
-    const aDate = new Date(FormatDate(a[orderBy]))
-    const bDate = new Date(FormatDate(b[orderBy]))
+  const aDate = new Date(a[orderBy])
+  const bDate = new Date(b[orderBy])
+  if (!isNaN(aDate) && !isNaN(bDate)) {
+    // const aDate = new Date(FormatDate(a[orderBy]))
+    // const bDate = new Date(FormatDate(b[orderBy]))
     if (bDate < aDate) {
       return -1
     }
@@ -87,7 +65,7 @@ function stableSort(array, comparator) {
 }
 
 function SortableTableHead(props) {
-  const { order, orderBy, onRequestSort } = props
+  const { order, orderBy, onRequestSort, headCells } = props
   const createSortHandler = (property) => (e) => {
     onRequestSort(e, property)
   }
@@ -96,14 +74,14 @@ function SortableTableHead(props) {
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
-            key={headCell.id}
-            align={headCell.id === 'userid' ? 'left' : 'right'}
-            sortDirection={orderBy === headCell.id ? order : false}
+            key={headCell.key}
+            align={headCell.type === 'number' ? 'center' : 'right'}
+            sortDirection={orderBy === headCell.key ? order : false}
           >
             <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
+              active={orderBy === headCell.key}
+              direction={orderBy === headCell.key ? order : 'asc'}
+              onClick={createSortHandler(headCell.key)}
             >
               {headCell.label}
             </TableSortLabel>
@@ -120,7 +98,7 @@ SortableTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired
 }
 
-function UsersTable() {
+function CustomTable({ data, headCells, searchFields, searchLabel }) {
   // SEARCH
   const [search, setSearch] = useState('')
   const handleSearch = (e) => {
@@ -153,14 +131,14 @@ function UsersTable() {
 
   const filteredRows = useMemo(
     () =>
-      rows.filter((row) => {
+      data.filter((row) => {
         if (search === '') {
           return row
         }
         else {
-          const properties = ['username', 'email', 'role']
+          // const properties = searchfields
           let containsVal = false
-          properties.forEach((property) => {
+          searchFields.forEach((property) => {
             if (row[property].toLowerCase().includes(search.toLowerCase())) {
               containsVal = true
             }
@@ -168,7 +146,7 @@ function UsersTable() {
           return containsVal
         }
       }),
-    [search]
+    [search, data, searchFields]
   )
   const sortedRows = useMemo(
     () =>
@@ -195,7 +173,7 @@ function UsersTable() {
       }}>
         <TextField
           id='standard-search'
-          label='Search by username, email and role'
+          label={searchLabel}
           type='search'
           size='small'
           variant='standard'
@@ -240,32 +218,37 @@ function UsersTable() {
             order={order}
             orderBy={orderBy}
             onRequestSort={handleRequestSort}
+            headCells={headCells}
           />
           <TableBody>
             {sortedRows.map((row) => (
               <TableRow
-                key={row.userid}
+                key={row.id}
                 sx={{
                   cursor: 'pointer',
                   '&:hover': {
                     backgroundColor: 'red'
                   }
                 }}
-                onClick={() => {
-                  navigate(`/users/${row.userid}`)
-                }}>
-                <TableCell align='left'>{row.userid}</TableCell>
-                <TableCell align='right'>{row.username}</TableCell>
-                <TableCell align='right'>{row.email}</TableCell>
-                <TableCell align='right'>{row.role}</TableCell>
-                <TableCell align='right'>{row.date}</TableCell>
+                // onClick={() => {
+                //   navigate(`/users/${row.id}`)
+                // }}
+              >
+                {headCells.map((cell) => (
+                  <TableCell key={cell.key} align={cell.type==='number' ? 'center' : 'right'}>
+                    {cell.type==='date'
+                      ? FormatDate(row[cell.key])
+                      : row[cell.key]
+                    }
+                  </TableCell>
+                ))}
               </TableRow>
             ))}
             {emptyRows > 0 && (
               <TableRow style={{
                 height: 53 * emptyRows
               }}>
-                <TableCell colSpan={5} />
+                <TableCell colSpan={headCells.length} />
               </TableRow>
             )}
           </TableBody>
@@ -281,10 +264,10 @@ function UsersTable() {
       }}>
         <Typography variant='h7'>
           {(page-1) * rowsPerPage + rowsPerPage < filteredRows.length
-            ? `Displaying rows ${(page-1) * rowsPerPage + 1} - ${(page-1) * rowsPerPage + rowsPerPage}
-              of ${filteredRows.length}`
-            : `Displaying rows ${(page-1) * rowsPerPage + 1} - ${filteredRows.length}
-              of ${filteredRows.length}`
+            ? `Отображено ${(page-1) * rowsPerPage + 1} - ${(page-1) * rowsPerPage + rowsPerPage}
+              из ${filteredRows.length}`
+            : `Отображено ${(page-1) * rowsPerPage + 1} - ${filteredRows.length}
+              из ${filteredRows.length}`
           }
         </Typography>
         <Pagination
@@ -318,4 +301,4 @@ function UsersTable() {
   )
 }
 
-export default UsersTable
+export default CustomTable

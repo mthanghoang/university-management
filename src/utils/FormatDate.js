@@ -1,9 +1,11 @@
 export default function FormatDate(dateString) {
-  // Split the date string into day, month, and year parts
-  const [day, month, year] = dateString.split('/')
-
-  // Swap day and month parts and join them back together
-  const reversedDateString = `${month}/${day}/${year}`
-
-  return reversedDateString
+  if (dateString) {
+    const date = new Date(dateString)
+    const day = date.getDate()
+    const month = date.getMonth() + 1 // Months are zero-indexed, so we add 1
+    const year = date.getFullYear()
+    const formattedDate = `${day}/${month}/${year}`
+    return formattedDate
+  }
+  return dateString
 }

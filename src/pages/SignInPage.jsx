@@ -15,6 +15,8 @@ import { useState } from 'react'
 import IconButton from '@mui/material/IconButton'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import { loginAPI } from '../apis'
+import * as storage from '../utils/Storage'
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -44,6 +46,13 @@ export default function SignInPage() {
       return
     }
     setPasswordError(false)
+  }
+  // HANDLE SUBMIT
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    loginAPI(usernameInput, passwordInput).then((data) => {
+      storage.save('user', data.accessToken)
+    })
   }
   return (
     <Box sx={{
@@ -168,9 +177,7 @@ export default function SignInPage() {
                   variant='contained'
                   color='primary'
                   sx={{ mt: '8px' }}
-                  onClick={(e) => {
-                    e.preventDefault()
-                  }}
+                  onClick={handleSubmit}
                 >
                     Sign In
                 </Button>

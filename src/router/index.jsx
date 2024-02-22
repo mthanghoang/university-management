@@ -2,8 +2,10 @@ import { createBrowserRouter } from 'react-router-dom'
 import HomePage from '../pages/HomePage'
 import NotFoundPage from '../pages/NotFoundPage'
 import SignInPage from '../pages/SignInPage'
-import UsersList from '../pages/Users'
-import UserView from '../pages/Users/_id'
+import StudentsList from '../pages/Students'
+import StudentView from '../pages/Students/_id'
+import EmployeesList from '../pages/Employees'
+import ClassesList from '../pages/Classes'
 
 const router = createBrowserRouter([
   {
@@ -16,12 +18,20 @@ const router = createBrowserRouter([
     element: <SignInPage />
   },
   {
-    path: '/users',
-    element: <UsersList />
+    path: '/students',
+    element: <StudentsList />
   },
   {
-    path: '/users/:userid',
-    element: <UserView />
+    path: '/students/:studentid',
+    element: <StudentView />
+  },
+  {
+    path: '/employees',
+    element: <EmployeesList />
+  },
+  {
+    path: '/classes',
+    element: <ClassesList />
   }])
 
 export default router
