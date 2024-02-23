@@ -79,7 +79,7 @@ export default function SignInPage() {
       <Box sx={{ display: 'flex', height: `calc(100% - ${theme.custom.appBarHeight})` }}>
         <Box sx={{ m: 'auto', display: 'flex', alignItems: 'center' }}>
           <Box sx={{
-            transform: `translateY(-${theme.custom.appBarHeight})`
+            // transform: `translateY(-${theme.custom.appBarHeight})`
           }}>
             <Card sx={{ minWidth: '460px', mt: '16px' }}>
               <CardContent sx={{

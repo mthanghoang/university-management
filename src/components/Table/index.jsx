@@ -224,6 +224,7 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
             {sortedRows.map((row) => (
               <TableRow
                 key={row.id}
+                // key={row}
                 sx={{
                   cursor: 'pointer',
                   '&:hover': {

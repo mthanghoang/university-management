@@ -16,7 +16,6 @@ function AppBar() {
       <Button
         color="inherit"
         edge="start"
-        sx={{ mr: 2 }}
       >
         <MenuIcon sx={{ color: 'primary.main' }} />
       </Button>

@@ -41,7 +41,12 @@ export const fetchClassesListAPI = async() => {
   return response.data.items
 }
 
-export const fetchStudentInfoAPI = async() => {
-  const response = await instance.get(`${API_ROOT}/api/class/list`)
+export const fetchStudentInfoAPI = async(studentId) => {
+  const response = await instance.get(`${API_ROOT}/api/student/${studentId}`)
   return response.data.student[0]
+}
+
+export const fetchStudentGradesAPI = async(studentId) => {
+  const response = await instance.get(`${API_ROOT}/api/grade/${studentId}`)
+  return response.data.items
 }
