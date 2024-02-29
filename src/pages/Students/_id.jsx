@@ -7,12 +7,15 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import FormatDate from '../../utils/FormatDate'
 import CustomTable from '../../components/Table'
+import Skeleton from '@mui/material/Skeleton'
 
 function StudentView() {
   const params = useParams()
   const [info, setInfo] = useState()
   const [sex, setSex] = useState()
   const [grades, setGrades] = useState()
+  const [infoLoading, setInfoLoading] = useState(true)
+  const [gradesLoading, setGradesLoading] = useState(true)
   const headCells = [
     {
       'key': 'subject_title',
@@ -51,10 +54,12 @@ function StudentView() {
       else {
         setSex('female')
       }
+      setInfoLoading(false)
     })
 
     fetchStudentGradesAPI(params.studentid).then((grades) => {
       setGrades(grades)
+      setGradesLoading(false)
     })
   }, [params.studentid])
   return (
@@ -65,7 +70,8 @@ function StudentView() {
           width: '100%',
           display: 'flex',
           alignItems: 'center',
-          gap: 3
+          gap: 3,
+          pt: 2
         }}>
           <Paper sx={{
             display: 'flex',
@@ -77,18 +83,22 @@ function StudentView() {
             height: '262px',
             ml: 3
           }}>
-            <Box
-              width='100%'
-              height='100%'
-              sx={{
-                backgroundImage: `url("/src/assets/default-avatar-${sex}.svg")`,
-                backgroundPosition: '50%',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: 'cover',
-                borderRadius: '0.5rem'
-              }}
-            >
-            </Box>
+            {!infoLoading ? (
+              <Box
+                width='100%'
+                height='100%'
+                sx={{
+                  backgroundImage: `url("/src/assets/default-avatar-${sex}.svg")`,
+                  backgroundPosition: '50%',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: 'cover',
+                  borderRadius: '0.5rem'
+                }}
+              >
+              </Box>
+            ) :
+              <Skeleton variant='rounded' width={'100%'} height={'100%'} />
+            }
           </Paper>
           <Paper sx={{
             borderRadius: '16px',
@@ -100,7 +110,7 @@ function StudentView() {
               // height: '262px',
               padding: '16px'
             }}>
-              {info && (
+              {!infoLoading ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Box>
                     <Typography variant='h4'>
@@ -127,21 +137,87 @@ function StudentView() {
                     <Typography>{info.programm.code}</Typography>
                   </Box>
                 </Box>
-              )}
+              ) :
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box>
+                    <Skeleton variant='rounded' width={300} height={30} style={{ marginBottom: '5px' }} />
+                    <Skeleton variant='rounded' width={100} height={20} style={{ marginBottom: '5px' }}/>
+                  </Box>
+                  <Box>
+                    <Skeleton variant='rounded' width={150} height={30} style={{ marginBottom: '5px' }} />
+                    <Skeleton variant='rounded' width={100} height={20} style={{ marginBottom: '5px' }} />
+                  </Box>
+                  <Box>
+                    <Skeleton variant='rounded' width={150} height={30} style={{ marginBottom: '5px' }} />
+                    <Skeleton variant='rounded' width={100} height={20} style={{ marginBottom: '5px' }} />
+                  </Box>
+                  <Box>
+                    <Skeleton variant='rounded' width={150} height={30} style={{ marginBottom: '5px' }} />
+                    <Skeleton variant='rounded' width={100} height={20} style={{ marginBottom: '5px' }} />
+                  </Box>
+                  <Box>
+                    <Skeleton variant='rounded' width={150} height={30} style={{ marginBottom: '5px' }} />
+                    <Skeleton variant='rounded' width={100} height={20} style={{ marginBottom: '5px' }} />
+                  </Box>
+                </Box>
+              }
             </Box>
           </Paper>
         </Box>
         <Box m={3}>
           <Typography textAlign='center' variant='h4' fontWeight={500}>Зачётка</Typography>
         </Box>
-        {grades && (
+        {!gradesLoading ? (
           <CustomTable
             data={grades}
             headCells={headCells}
             searchFields={searchFields}
             searchLabel={searchLabel}
           />
-        )}
+        ) :
+          <Box display={'flex'} flexDirection={'column'} height={(theme) => `calc(50vh - ${theme.custom.appBarHeight})`}>
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+          </Box>
+        }
       </Box>
     </>
   )

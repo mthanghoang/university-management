@@ -5,9 +5,11 @@ import AppBar from '../../components/AppBar'
 import { useEffect, useState } from 'react'
 import { fetchStudentsListAPI } from '../../apis'
 import CustomTable from '../../components/Table'
+import { Skeleton } from '@mui/material'
 
 function StudentsList() {
   const [studentsList, setStudentsList] = useState(null)
+  const [loading, setLoading] = useState(true)
   const searchFields = ['lastname', 'surname', 'name']
   const searchLabel = 'Поиск по имени студента'
   const headCells = [
@@ -53,9 +55,9 @@ function StudentsList() {
     }
   ]
   useEffect(() => {
-    // fetchStudentsListAPI()
     fetchStudentsListAPI().then((studentsList) => {
       setStudentsList(studentsList)
+      setLoading(false)
     })
   }, [])
   return (
@@ -92,13 +94,51 @@ function StudentsList() {
             </Box>
           </Box>
         </Box>
-        {studentsList && (
+        {!loading ? (
           <CustomTable
             data={studentsList}
             headCells={headCells}
             searchFields={searchFields}
             searchLabel={searchLabel}/>
-        )}
+        ) :
+          <Box display={'flex'} flexDirection={'column'} height={(theme) => `calc(100vh - ${theme.custom.appBarHeight})`}>
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+            <Skeleton
+              variant='rounded'
+              height="10%"
+              style={{ margin: '0 16px 16px' }}
+            />
+          </Box>
+        }
       </Box>
     </>
   )

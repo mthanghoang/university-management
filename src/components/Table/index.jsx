@@ -102,7 +102,7 @@ SortableTableHead.propTypes = {
 function CustomTable({ data, headCells, searchFields, searchLabel }) {
   // SEARCH
   const [search, setSearch] = useState('')
-  const deboucedSearch = useDebounce(search)
+  const debouncedSearch = useDebounce(search)
   const handleSearch = (e) => {
     setSearch(e.target.value)
     setPage(1)
@@ -133,21 +133,21 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
   const filteredRows = useMemo(
     () =>
       data.filter((row) => {
-        if (deboucedSearch === '') {
+        if (debouncedSearch === '') {
           return row
         }
         else {
           // const properties = searchfields
           let containsVal = false
           searchFields.forEach((property) => {
-            if (row[property].toLowerCase().includes(deboucedSearch.toLowerCase())) {
+            if (row[property].toLowerCase().includes(debouncedSearch.toLowerCase())) {
               containsVal = true
             }
           })
           return containsVal
         }
       }),
-    [deboucedSearch, data, searchFields]
+    [debouncedSearch, data, searchFields]
   )
 
   const sortedRows = useMemo(
@@ -165,7 +165,7 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
 
   const navigate = useNavigate()
   return (
-    <Paper sx={{ mx: '16px' }}>
+    <Paper sx={{ marginX: '16px' }}>
       <Box sx={{
         display: 'flex',
         alignItems: 'center',
@@ -230,7 +230,7 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
                 sx={{
                   cursor: 'pointer',
                   '&:hover': {
-                    backgroundColor: 'red'
+                    backgroundColor: 'rgba(0, 150,136, 0.2)'
                   }
                 }}
                 // onClick={() => {
@@ -243,7 +243,7 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
                       ? FormatDate(row[cell.key])
                       :
                       <Highlighter
-                        searchWords={[deboucedSearch]}
+                        searchWords={[debouncedSearch]}
                         textToHighlight={ConvertToString(row[cell.key])}
                         highlightStyle={{ backgroundColor: 'transparent', color: '#820711FF', fontWeight: 'bold' }} />
                     }
