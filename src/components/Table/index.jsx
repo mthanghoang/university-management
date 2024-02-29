@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
 import { Box } from '@mui/system'
-import { TextField } from '@mui/material'
+import { IconButton, InputAdornment, TextField } from '@mui/material'
 import Button from '@mui/material/Button'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
@@ -25,6 +25,12 @@ import { useNavigate } from 'react-router'
 import { useDebounce } from '../../hooks/useDebounce'
 import Highlighter from 'react-highlight-words'
 import ConvertToString from '../../utils/ConvertToString'
+import SearchIcon from '@mui/icons-material/Search'
+import ClearIcon from '@mui/icons-material/Clear'
+import Menu from '@mui/material/Menu'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 function descendingComparator(a, b, orderBy) {
   const aDate = new Date(a[orderBy])
@@ -99,7 +105,7 @@ SortableTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired
 }
 
-function CustomTable({ data, headCells, searchFields, searchLabel }) {
+function CustomTable({ data, headCells, searchFields, searchLabel, filterFields }) {
   // SEARCH
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search)
@@ -107,6 +113,20 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
     setSearch(e.target.value)
     setPage(1)
   }
+  // FILTER
+  const [anchorEl, setAnchorEl] = useState(null)
+  const open = Boolean(anchorEl)
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+  // const [modalOpen, setModalOpen] = useState(false)
+  // const handleShowModal = () => {
+  //   setModalOpen(show => !show)
+  // }
+
   // PAGINATION
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -130,7 +150,7 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
     setPage(1)
   }
 
-  const filteredRows = useMemo(
+  const searchedRows = useMemo(
     () =>
       data.filter((row) => {
         if (debouncedSearch === '') {
@@ -152,16 +172,16 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
 
   const sortedRows = useMemo(
     () =>
-      stableSort(filteredRows, getComparator(order, orderBy)).slice(
+      stableSort(searchedRows, getComparator(order, orderBy)).slice(
         (page-1) * rowsPerPage,
         (page-1) * rowsPerPage + rowsPerPage
       ),
-    [order, orderBy, page, rowsPerPage, filteredRows]
+    [order, orderBy, page, rowsPerPage, searchedRows]
   )
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page-1 > 0 ? Math.max(0, (1 + page - 1) * rowsPerPage - filteredRows.length) : 0
+    page-1 > 0 ? Math.max(0, (1 + page - 1) * rowsPerPage - searchedRows.length) : 0
 
   const navigate = useNavigate()
   return (
@@ -184,6 +204,28 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
             flexGrow: '1',
             maxWidth: '500px'
           }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position='start'>
+                <SearchIcon sx={{ marginBottom: '5px' }}/>
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position='end'>
+                {search && (
+                  <IconButton
+                    aria-label='clear search'
+                    sx={{ padding: '5px', marginBottom: '5px' }}
+                    onClick={() => {
+                      setSearch('')
+                    }}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                )}
+              </InputAdornment>
+            )
+          }}
           onChange={handleSearch}
         />
         <Box sx={{
@@ -200,12 +242,84 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
           >
             ОЧИСТИТЬ
           </Button>
-          <Button variant='contained'>
-            <FilterAltIcon sx={{
-              width: '24px',
-              height: '24px'
-            }} />
+          <Button
+            variant='contained'
+            onClick={handleClick}
+            aria-controls={open ? 'basic-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+          >
+            <FilterAltIcon sx={{ width: '24px', height: '24px' }}/>
           </Button>
+          <Menu
+            id='filter-menu'
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+            slotProps={{
+              paper: { style: { width: 350 } }
+            }}
+          >
+            <Box fontSize={20} fontWeight={700} textAlign={'center'} width={'100%'}>
+              Фильтр
+            </Box>
+            {filterFields.map((field) => (
+              <MenuItem
+                key={field.key}
+                sx={{
+                  '&:hover': { backgroundColor: 'transparent' },
+                  backgroundColor: 'transparent',
+                  cursor: 'default',
+                  '&.Mui-focusVisible': { backgroundColor: 'transparent' }
+                }}
+                disableRipple
+              >
+                {field.type === 'date' && (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label={field.label}
+                      slotProps={{ textField: { size: 'small', variant: 'standard', fullWidth: 'true' } }}
+                      format='DD/MM/YYYY'
+                    />
+                  </LocalizationProvider>
+                )}
+                {field.type === 'selection' && (
+                  <TextField
+                    id="standard-select"
+                    select
+                    label={field.label}
+                    defaultValue=''
+                    variant='standard'
+                    fullWidth
+                    inputProps={{
+                      style: { backgroundColor: 'red' }
+                    }}
+                  >
+                    {field.options.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+                {field.type === 'string' && (
+                  <TextField fullWidth id="standard-basic" label={field.label} variant="standard" />
+                )}
+              </MenuItem>
+            ))}
+            <Box display={'flex'} justifyContent={'flex-end'} gap={1} paddingX={2} marginTop={1}>
+              <Button variant='outlined'>Очистить</Button>
+              <Button variant='contained'>Применить</Button>
+            </Box>
+          </Menu>
           <Button variant='contained'>
             <PersonAddIcon sx={{
               width: '24px',
@@ -270,18 +384,18 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
         gap: 1
       }}>
         <Typography variant='h7'>
-          {(page-1) * rowsPerPage + rowsPerPage < filteredRows.length
+          {(page-1) * rowsPerPage + rowsPerPage < searchedRows.length
             ? `Отображено ${(page-1) * rowsPerPage + 1} - ${(page-1) * rowsPerPage + rowsPerPage}
-              из ${filteredRows.length}`
-            : `Отображено ${(page-1) * rowsPerPage + 1} - ${filteredRows.length}
-              из ${filteredRows.length}`
+              из ${searchedRows.length}`
+            : `Отображено ${(page-1) * rowsPerPage + 1} - ${searchedRows.length}
+              из ${searchedRows.length}`
           }
         </Typography>
         <Pagination
           count={
-            filteredRows.length % rowsPerPage === 0
-              ? filteredRows.length / rowsPerPage
-              : Math.floor(filteredRows.length / rowsPerPage) + 1
+            searchedRows.length % rowsPerPage === 0
+              ? searchedRows.length / rowsPerPage
+              : Math.floor(searchedRows.length / rowsPerPage) + 1
           }
           page={page}
           onChange={handleChangePage}

@@ -12,6 +12,34 @@ function StudentsList() {
   const [loading, setLoading] = useState(true)
   const searchFields = ['lastname', 'surname', 'name']
   const searchLabel = 'Поиск по имени студента'
+  const filterFields = [
+    {
+      'key': 'id',
+      'type': 'string',
+      'label': 'ID студента'
+    },
+    {
+      'key': 'fullname',
+      'type': 'string',
+      'label': 'Имя студента'
+    },
+    {
+      'key': 'birthday',
+      'type': 'date',
+      'label': 'День рождения'
+    },
+    {
+      'key': 'sex',
+      'type': 'selection',
+      'options': ['Мужской', 'Женский'],
+      'label': 'Пол'
+    },
+    {
+      'key': 'programm_id',
+      'type': 'string',
+      'label': 'ID программы'
+    }
+  ]
   const headCells = [
     {
       'key': 'id',
@@ -99,7 +127,9 @@ function StudentsList() {
             data={studentsList}
             headCells={headCells}
             searchFields={searchFields}
-            searchLabel={searchLabel}/>
+            searchLabel={searchLabel}
+            filterFields={filterFields}
+          />
         ) :
           <Box display={'flex'} flexDirection={'column'} height={(theme) => `calc(100vh - ${theme.custom.appBarHeight})`}>
             <Skeleton

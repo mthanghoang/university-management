@@ -12,6 +12,35 @@ function EmployeesList() {
   const [loading, setLoading] = useState(true)
   const searchFields = ['lastname', 'surname', 'name', 'type_employee']
   const searchLabel = 'Поиск по имени и должности'
+  const filterFields = [
+    {
+      'key': 'id',
+      'type': 'string',
+      'label': 'ID сотрудника'
+    },
+    {
+      'key': 'fullname',
+      'type': 'string',
+      'label': 'Имя сотрудника'
+    },
+    {
+      'key': 'salary',
+      'type': 'string',
+      'label': 'Зарплата'
+    },
+    {
+      'key': 'sex',
+      'type': 'selection',
+      'options': ['Мужской', 'Женский'],
+      'label': 'Пол'
+    },
+    {
+      'key': 'type_employee',
+      'type': 'selection',
+      'options': ['Преподаватель', 'Бухгалтер', 'Ментор'],
+      'label': 'Должность'
+    }
+  ]
   const headCells = [
     {
       'key': 'id',
@@ -99,7 +128,9 @@ function EmployeesList() {
             data={employeesList}
             headCells={headCells}
             searchFields={searchFields}
-            searchLabel={searchLabel}/>
+            searchLabel={searchLabel}
+            filterFields={filterFields}
+          />
         ) :
           <Box display={'flex'} flexDirection={'column'} height={(theme) => `calc(100vh - ${theme.custom.appBarHeight})`}>
             <Skeleton

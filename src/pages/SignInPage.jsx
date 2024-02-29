@@ -20,8 +20,9 @@ import * as storage from '../utils/Storage'
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
-
-  const handleClickShowPassword = () => setShowPassword((show) => !show)
+  const handleClickShowPassword = () => {
+    setShowPassword((show) => !show)
+  }
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault()
