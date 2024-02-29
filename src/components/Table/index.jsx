@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -22,13 +22,14 @@ import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import { useNavigate } from 'react-router'
+import { useDebounce } from '../../hooks/useDebounce'
+import Highlighter from 'react-highlight-words'
+import ConvertToString from '../../utils/ConvertToString'
 
 function descendingComparator(a, b, orderBy) {
   const aDate = new Date(a[orderBy])
   const bDate = new Date(b[orderBy])
   if (!isNaN(aDate) && !isNaN(bDate)) {
-    // const aDate = new Date(FormatDate(a[orderBy]))
-    // const bDate = new Date(FormatDate(b[orderBy]))
     if (bDate < aDate) {
       return -1
     }
@@ -101,11 +102,11 @@ SortableTableHead.propTypes = {
 function CustomTable({ data, headCells, searchFields, searchLabel }) {
   // SEARCH
   const [search, setSearch] = useState('')
+  const deboucedSearch = useDebounce(search)
   const handleSearch = (e) => {
     setSearch(e.target.value)
     setPage(1)
   }
-
   // PAGINATION
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -132,22 +133,23 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
   const filteredRows = useMemo(
     () =>
       data.filter((row) => {
-        if (search === '') {
+        if (deboucedSearch === '') {
           return row
         }
         else {
           // const properties = searchfields
           let containsVal = false
           searchFields.forEach((property) => {
-            if (row[property].toLowerCase().includes(search.toLowerCase())) {
+            if (row[property].toLowerCase().includes(deboucedSearch.toLowerCase())) {
               containsVal = true
             }
           })
           return containsVal
         }
       }),
-    [search, data, searchFields]
+    [deboucedSearch, data, searchFields]
   )
+
   const sortedRows = useMemo(
     () =>
       stableSort(filteredRows, getComparator(order, orderBy)).slice(
@@ -239,7 +241,11 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
                   <TableCell key={cell.key} align={cell.type==='number' ? 'center' : 'right'}>
                     {cell.type==='date'
                       ? FormatDate(row[cell.key])
-                      : row[cell.key]
+                      :
+                      <Highlighter
+                        searchWords={[deboucedSearch]}
+                        textToHighlight={ConvertToString(row[cell.key])}
+                        highlightStyle={{ backgroundColor: 'transparent', color: '#820711FF', fontWeight: 'bold' }} />
                     }
                   </TableCell>
                 ))}
@@ -283,12 +289,12 @@ function CustomTable({ data, headCells, searchFields, searchLabel }) {
           color='primary'
           size='large'/>
         <FormControl sx={{ minWidth: 120 }} size="small">
-          <InputLabel id="label-select-rows-per-page">Rows per page</InputLabel>
+          <InputLabel id="label-select-rows-per-page">Строки</InputLabel>
           <Select
             labelId="label-select-rows-per-page"
             id="select-rows-per-page"
             value={rowsPerPage}
-            label="Rows per page"
+            label="Строки"
             onChange={handleChangeRowsPerPage}
           >
             <MenuItem value={5}>5</MenuItem>
