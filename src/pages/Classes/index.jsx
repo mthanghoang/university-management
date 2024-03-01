@@ -12,6 +12,61 @@ function ClassesList() {
   const [loading, setLoading] = useState(true)
   const searchFields = ['langue', 'type_control', 'schedule']
   const searchLabel = 'Поиск по языку, типу контроля и расписанию'
+  const filterFields = [
+    {
+      'key': 'id',
+      'type': 'number',
+      'label': 'ID группы'
+    },
+    {
+      'key': 'year',
+      'type': 'string',
+      'label': 'Год'
+    },
+    {
+      'key': 'semester',
+      'type': 'selection',
+      'options': [1, 2],
+      'label': 'Семестр'
+    },
+    {
+      'key': 'langue',
+      'type': 'selection',
+      'options': ['Английский', 'Русский'],
+      'label': 'Язык'
+    },
+    {
+      'key': 'type_control',
+      'type': 'selection',
+      'options': ['Экзамен', 'Зачет'],
+      'label': 'Тип контроля'
+    },
+    {
+      'key': 'date_control',
+      'type': 'date',
+      'label': 'Дата контроля'
+    },
+    {
+      'key': 'limit_students',
+      'type': 'string',
+      'label': 'Ограничение по студентам'
+    },
+    {
+      'key': 'schedule',
+      'type': 'string',
+      'label': 'Расписание'
+    },
+    {
+      'key': 'subject_id',
+      'type': 'number',
+      'label': 'ID дисциплины'
+    },
+    {
+      'key': 'employee_id',
+      'type': 'number',
+      'label': 'ID преподавателя'
+    }
+  ]
   const headCells = [
     {
       'key': 'id',
@@ -45,7 +100,7 @@ function ClassesList() {
     },
     {
       'key': 'limit_students',
-      'type': 'number',
+      'type': 'string',
       'label': 'Ограничение по студентам'
     },
     {
@@ -99,8 +154,8 @@ function ClassesList() {
               }} />
             </Box>
             <Box px={2} >
-              <Box>Сотрудник</Box>
-              <Box>Список сотрудников</Box>
+              <Box>Группы</Box>
+              <Box>Список групп</Box>
             </Box>
           </Box>
         </Box>
@@ -109,7 +164,8 @@ function ClassesList() {
             data={classesList}
             headCells={headCells}
             searchFields={searchFields}
-            searchLabel={searchLabel}/>
+            searchLabel={searchLabel}
+            filterFields={filterFields}/>
         ) :
           <Box display={'flex'} flexDirection={'column'} height={(theme) => `calc(100vh - ${theme.custom.appBarHeight})`}>
             <Skeleton

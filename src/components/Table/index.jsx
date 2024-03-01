@@ -122,10 +122,6 @@ function CustomTable({ data, headCells, searchFields, searchLabel, filterFields 
   const handleClose = () => {
     setAnchorEl(null)
   }
-  // const [modalOpen, setModalOpen] = useState(false)
-  // const handleShowModal = () => {
-  //   setModalOpen(show => !show)
-  // }
 
   // PAGINATION
   const [page, setPage] = useState(1)
@@ -282,37 +278,41 @@ function CustomTable({ data, headCells, searchFields, searchLabel, filterFields 
                 }}
                 disableRipple
               >
-                {field.type === 'date' && (
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label={field.label}
-                      slotProps={{ textField: { size: 'small', variant: 'standard', fullWidth: 'true' } }}
-                      format='DD/MM/YYYY'
-                    />
-                  </LocalizationProvider>
-                )}
-                {field.type === 'selection' && (
-                  <TextField
-                    id="standard-select"
-                    select
-                    label={field.label}
-                    defaultValue=''
-                    variant='standard'
-                    fullWidth
-                    inputProps={{
-                      style: { backgroundColor: 'red' }
-                    }}
-                  >
-                    {field.options.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-                {field.type === 'string' && (
-                  <TextField fullWidth id="standard-basic" label={field.label} variant="standard" />
-                )}
+                {(() => {
+                  switch (field.type) {
+                  case 'date':
+                    return (
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label={field.label}
+                          slotProps={{ textField: { size: 'small', variant: 'standard', fullWidth: 'true' } }}
+                          format='DD/MM/YYYY'
+                        />
+                      </LocalizationProvider>
+                    )
+                  case 'selection':
+                    return (
+                      <TextField
+                        id="standard-select"
+                        select
+                        label={field.label}
+                        defaultValue=''
+                        variant='standard'
+                        fullWidth
+                      >
+                        {field.options.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )
+                  default:
+                    return (
+                      <TextField fullWidth id="standard-search" label={field.label} variant="standard" type='search'/>
+                    )
+                  }
+                })()}
               </MenuItem>
             ))}
             <Box display={'flex'} justifyContent={'flex-end'} gap={1} paddingX={2} marginTop={1}>

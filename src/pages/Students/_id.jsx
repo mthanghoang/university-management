@@ -16,6 +16,34 @@ function StudentView() {
   const [grades, setGrades] = useState()
   const [infoLoading, setInfoLoading] = useState(true)
   const [gradesLoading, setGradesLoading] = useState(true)
+  const filterFields = [
+    {
+      'key': 'subject_title',
+      'type': 'string',
+      'label': 'Название предмета'
+    },
+    {
+      'key': 'subject_duration',
+      'type': 'string',
+      'label': 'Количество часов'
+    },
+    {
+      'key': 'type_control',
+      'type': 'selection',
+      'options': ['Экзамен', 'Зачет'],
+      'label': 'Тип контроля'
+    },
+    {
+      'key': 'employee_fullname',
+      'type': 'string',
+      'label': 'Преподаватель'
+    },
+    {
+      'key': 'grade',
+      'type': 'number',
+      'label': 'Итоговая оценка'
+    }
+  ]
   const headCells = [
     {
       'key': 'subject_title',
@@ -173,6 +201,7 @@ function StudentView() {
             headCells={headCells}
             searchFields={searchFields}
             searchLabel={searchLabel}
+            filterFields={filterFields}
           />
         ) :
           <Box display={'flex'} flexDirection={'column'} height={(theme) => `calc(50vh - ${theme.custom.appBarHeight})`}>

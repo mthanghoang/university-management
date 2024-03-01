@@ -15,7 +15,7 @@ function StudentsList() {
   const filterFields = [
     {
       'key': 'id',
-      'type': 'string',
+      'type': 'number',
       'label': 'ID студента'
     },
     {
@@ -36,7 +36,7 @@ function StudentsList() {
     },
     {
       'key': 'programm_id',
-      'type': 'string',
+      'type': 'number',
       'label': 'ID программы'
     }
   ]
